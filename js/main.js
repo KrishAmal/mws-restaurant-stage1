@@ -216,7 +216,7 @@ createRestaurantHTML = (restaurant) => {
 
 function getSrcsetForImages(restaurant) {
   let photo = restaurant.photograph.split('.')[0];
-  let srcset = `../img/${photo}-800.jpg 800w, ../img/${photo}-600.jpg 400w`;
+  let srcset = `./img/${photo}-800.jpg 800w, ./img/${photo}-600.jpg 400w`;
   return (srcset);
 }
 
