@@ -18,11 +18,11 @@
     <!-- Beginning nav -->
     <nav>
       <h1>
-        <a href="/mws-restaurant-stage1/" aria-label="link restaurant reviews">Restaurant Reviews</a>
+        <a href="/mws-restaurant-stage1/" tabindex="-1" aria-label="link restaurant reviews">Restaurant Reviews</a>
       </h1>
     </nav>
     <!-- Beginning breadcrumb -->
-    <ul id="breadcrumb" role="navigation" class="breadcrumb-inside">
+    <ul id="breadcrumb" tabindex="0" role="navigation" class="breadcrumb-inside">
       <li>
         <a href="/mws-restaurant-stage1/" aria-label="link home">Home</a>
       </li>
@@ -35,21 +35,23 @@
   <!-- Beginning main -->
   <main id="maincontent" class="maincontent-inside">
     <!-- Beginning map -->
-    <section id="map-container">
-      <div id="map"></div>
-    </section>
+    
     <!-- End map -->
     <!-- Beginning restaurant -->
-    <section id="restaurant-container">
-      <h2 id="restaurant-name"></h2>
+    <section id="restaurant-container" >
+      <h2 id="restaurant-name" tabindex="0"></h2>
       <img id="restaurant-img" alt="picture of a restaurant">
-      <p id="restaurant-cuisine"></p>
-      <p id="restaurant-address"></p>
-      <table id="restaurant-hours"></table>
+      <p id="restaurant-cuisine" tabindex="0"></p>
+      <p id="restaurant-address" tabindex="0"></p>
+      <table id="restaurant-hours" tabindex="0"></table>
     </section>
+
+    <section id="map-container" >
+        <div id="map" ></div>
+      </section>
     <!-- end restaurant -->
     <!-- Beginning reviews -->
-    <section id="reviews-container">
+    <section id="reviews-container" >
       <ul id="reviews-list"></ul>
     </section>
     <!-- End reviews -->
