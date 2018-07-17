@@ -190,7 +190,8 @@ createRestaurantHTML = (restaurant) => {
   const image = document.createElement('img');
   image.className = 'restaurant-img';
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.alt = "picture of a restaurant";
+  image.alt = "picture of "+restaurant.name;
+  image.srcset = getSrcsetForImages(restaurant);
   li.append(image);
 
   const name = document.createElement('h1');
@@ -211,6 +212,12 @@ createRestaurantHTML = (restaurant) => {
   li.append(more)
 
   return li
+}
+
+function getSrcsetForImages(restaurant) {
+  let photo = restaurant.photograph.split('.')[0];
+  let srcset = `/mws-restaurant-stage1/img/${photo}-800.jpg 800w, /mws-restaurant-stage1/img/${photo}-600.jpg 400w`;
+  return (srcset);
 }
 
 /**
