@@ -2,3 +2,4 @@
 node_modules/
 images_src/
 .vscode/
+*package-lock.json
