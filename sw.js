@@ -10,8 +10,7 @@ const PRECACHE_URLS = [
   './js/dbhelper.js',
   './js/main.js',
   './js/restaurant_info.js',
-  './data/restaurants.json',
-  './img/'
+  './data/restaurants.json'
 ];
 
 self.addEventListener('install', event => {
