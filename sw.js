@@ -11,7 +11,7 @@ const PRECACHE_URLS = [
   './js/main.js',
   './js/restaurant_info.js',
   './data/restaurants.json',
-  './img/*'
+  './img/'
 ];
 
 self.addEventListener('install', event => {
@@ -36,7 +36,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.url.startsWith(self.location.origin)) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
@@ -52,5 +51,4 @@ self.addEventListener('fetch', event => {
         });
       })
     );
-  }
 });
