@@ -303,7 +303,7 @@ nav h1 a {
 
 @media only screen and (max-width: 600px) {
  
-  #restaurant-name, #restaurant-address, #reviews-container h2{
+  #restaurant-name, #restaurant-address, #reviews-container h3{
     text-align: center;
   }
 
