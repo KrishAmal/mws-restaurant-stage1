@@ -20,9 +20,12 @@ const PRECACHE_URLS = [
   './img/7.jpg',
   './img/8.jpg',
   './img/9.jpg',
-  './img/10.jpg'
+  './img/10.jpg',
+
+  'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css'
 ];
 
+//Install Service Worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(PRECACHE)
@@ -31,6 +34,7 @@ self.addEventListener('install', event => {
   );
 });
 
+//Activate Service Worker
 self.addEventListener('activate', event => {
   const currentCaches = [PRECACHE, RUNTIME];
   event.waitUntil(
@@ -44,6 +48,7 @@ self.addEventListener('activate', event => {
   );
 });
 
+//Fetch Service Worker
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
@@ -51,7 +56,10 @@ self.addEventListener('fetch', event => {
         return cachedResponse;
       }
 
-      //Cloning the request
+      // IMPORTANT: Clone the response. A response is a stream
+      // and because we want the browser to consume the response
+      // as well as the cache consuming the response, we need
+      // to clone it so we have two streams.
       var fetchRequest = event.request.clone();
 
       return fetch(fetchRequest).then(
@@ -76,13 +84,13 @@ self.addEventListener('fetch', event => {
         }
       );
 
-      // return caches.open(RUNTIME).then(cache => {
-      //   return fetch(event.request).then(response => {
-      //     return cache.put(event.request, response.clone()).then(() => {
-      //       return response;
-      //     });
-      //   });
-      // });
+      return caches.open(RUNTIME).then(cache => {
+        return fetch(event.request).then(response => {
+          return cache.put(event.request, response.clone()).then(() => {
+            return response;
+          });
+        });
+      });
 
     })
   );
