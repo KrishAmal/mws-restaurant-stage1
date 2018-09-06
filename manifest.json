@@ -3,12 +3,12 @@
     "name": "MWS Restaurants",
     "icons": [
       {
-        "src": "/img/icon_logo_192.png",
+        "src": "img/icon_logo_192.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/img/icon_logo_512.png",
+        "src": "img/icon_logo_512.png",
         "type": "image/png",
         "sizes": "512x512"
       }
