@@ -10,7 +10,9 @@ function openDatabase() {
   }
 
   return idb.open('restaurant_detail', 1, function(upgradeDb) {
-   upgradeDb.createObjectStore('restaurant_detail');
+   upgradeDb.createObjectStore('restaurant_detail', {
+      autoIncrement: true 
+    });
   });
 }
 

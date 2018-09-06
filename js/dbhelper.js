@@ -32,7 +32,6 @@ class DBHelper {
         const json = JSON.parse(xhr.responseText);
         const restaurants = json;
 
-        console.log(restaurants);
         dbPromise.then(function (db) {
           if (!db) return;
 
@@ -95,8 +94,6 @@ class DBHelper {
       if (xhr.status === 200) { // Got a success response from server!
         const json = JSON.parse(xhr.responseText);
         const restaurant_detail = json;
-
-        console.log(restaurant_detail);
         
         dbPromise.then(function (db) {
           if (!db) return;
