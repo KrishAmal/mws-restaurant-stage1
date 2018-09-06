@@ -3,6 +3,22 @@ let restaurants,
   cuisines
 var newMap
 var markers = []
+var dbPromise
+
+function openDatabase() {
+  // If the browser doesn't support service worker,
+  // we don't care about having a database
+  if (!navigator.serviceWorker) {
+    return Promise.resolve();
+  }
+
+  return idb.open('restaurant', 1, function(upgradeDb) {
+    upgradeDb.createObjectStore('restaurant', {
+      keyPath: 'id'
+    });
+    // store.createIndex('by-date', 'time');
+  });
+}
 
 //Register Service Worker
 if ('serviceWorker' in navigator) {
@@ -37,10 +53,15 @@ if ('serviceWorker' in navigator) {
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  init();
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
 });
+
+function init(){
+  dbPromise = openDatabase();
+}
 
 /**
  * Fetch all neighborhoods and set their HTML.
@@ -209,13 +230,15 @@ createRestaurantHTML = (restaurant) => {
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
+  more.setAttribute('aria-label',`View Details of ${restaurant.name}`);
   li.append(more)
 
   return li
 }
 
 function getSrcsetForImages(restaurant) {
-  let photo = restaurant.photograph.split('.')[0];
+  // let photo = restaurant.photograph.split('.')[0];
+  let photo = restaurant.photograph;
   let srcset = `./img/${photo}-800.jpg 800w, ./img/${photo}-600.jpg 400w`;
   return (srcset);
 }

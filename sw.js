@@ -1,5 +1,5 @@
 
-const PRECACHE = 'precache-v2';
+const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime';
 
 const PRECACHE_URLS = [
@@ -52,6 +52,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
+
       if (cachedResponse) {
         return cachedResponse;
       }
@@ -75,7 +76,7 @@ self.addEventListener('fetch', event => {
           // to clone it so we have two streams.
           var responseToCache = response.clone();
 
-          caches.open(PRECACHE)
+          caches.open(RUNTIME)
             .then(function (cache) {
               cache.put(event.request, responseToCache);
             });
@@ -84,13 +85,13 @@ self.addEventListener('fetch', event => {
         }
       );
 
-      return caches.open(RUNTIME).then(cache => {
-        return fetch(event.request).then(response => {
-          return cache.put(event.request, response.clone()).then(() => {
-            return response;
-          });
-        });
-      });
+      // return caches.open(RUNTIME).then(cache => {
+      //   return fetch(event.request).then(response => {
+      //     return cache.put(event.request, response.clone()).then(() => {
+      //       return response;
+      //     });
+      //   });
+      // });
 
     })
   );

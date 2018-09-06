@@ -1,12 +1,32 @@
 let restaurant;
 var newMap;
+var dbPromise
+
+function openDatabase() {
+  // If the browser doesn't support service worker,
+  // we don't care about having a database
+  if (!navigator.serviceWorker) {
+    return Promise.resolve();
+  }
+
+  return idb.open('restaurant_detail', 1, function(upgradeDb) {
+   upgradeDb.createObjectStore('restaurant_detail', {
+      keyPath: 'id'
+    });
+  });
+}
 
 /**
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
-  initMap();
+  init();
 });
+
+function init(){
+  dbPromise = openDatabase();
+  initMap();
+}
 
 /**
  * Initialize leaflet map
@@ -88,6 +108,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
+
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   image.alt = "Photo of "+restaurant.name;
 
