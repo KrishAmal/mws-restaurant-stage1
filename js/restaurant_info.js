@@ -10,9 +10,7 @@ function openDatabase() {
   }
 
   return idb.open('restaurant_detail', 1, function(upgradeDb) {
-   upgradeDb.createObjectStore('restaurant_detail', {
-      keyPath: 'id'
-    });
+   upgradeDb.createObjectStore('restaurant_detail');
   });
 }
 
