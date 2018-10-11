@@ -21,6 +21,10 @@ class DBHelper {
     return `http://localhost:1337/restaurants/${id}`;
   }
 
+  static SERVER_REVIEWS_BY_ID(id){
+    return `http://localhost:1337/reviews/?restaurant_id=${id}` ;
+  }
+
   /**
    * Fetch all restaurants.
    */
@@ -81,13 +85,14 @@ class DBHelper {
   }
 
 
-
+  
   /**
    * Fetch a restaurant by its ID.
    */
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
 
+    
     let xhr = new XMLHttpRequest();
     xhr.open('GET', DBHelper.SERVER_URL_BY_ID(id));
     xhr.onload = () => {

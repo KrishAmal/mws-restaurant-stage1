@@ -1,6 +1,6 @@
 let restaurant;
 var newMap;
-var dbPromise
+var dbPromise;
 
 function openDatabase() {
   // If the browser doesn't support service worker,
@@ -9,21 +9,27 @@ function openDatabase() {
     return Promise.resolve();
   }
 
-  return idb.open('restaurant_detail', 1, function(upgradeDb) {
-   upgradeDb.createObjectStore('restaurant_detail', {
-      autoIncrement: true 
+  return idb.open('restaurant_detail', 2, function (upgradeDb) {
+    if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
+      upgradeDb.createObjectStore('restaurant_detail_review', {
+        autoIncrement: true
+      });
+    }
+    upgradeDb.createObjectStore('restaurant_detail', {
+      autoIncrement: true
     });
+
   });
 }
 
 /**
  * Initialize map as soon as the page is loaded.
  */
-document.addEventListener('DOMContentLoaded', (event) => {  
+document.addEventListener('DOMContentLoaded', (event) => {
   init();
 });
 
-function init(){
+function init() {
   dbPromise = openDatabase();
   initMap();
 }
@@ -35,7 +41,7 @@ initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
-    } else {      
+    } else {
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
@@ -47,14 +53,14 @@ initMap = () => {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
           '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
           'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'    
+        id: 'mapbox.streets'
       }).addTo(newMap);
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
   });
-}  
- 
+}
+
 /* window.initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
@@ -110,7 +116,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   image.className = 'restaurant-img'
 
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.alt = "Photo of "+restaurant.name;
+  image.alt = "Photo of " + restaurant.name;
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
@@ -120,7 +126,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  fetchReviews();
 }
 
 /**
@@ -143,10 +149,50 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
   }
 }
 
+fetchReviews = (id = self.restaurant.id) => {
+  fetch(DBHelper.SERVER_REVIEWS_BY_ID(id))
+    .then(response => response.json())
+    .then(gotReviews)
+    .catch(e => requestError(e, id));
+}
+
+function gotReviews(reviews) {
+  dbPromise.then(function (db) {
+    if (!db) return;
+
+    var tx = db.transaction('restaurant_detail_review', 'readwrite');
+    var store = tx.objectStore('restaurant_detail_review');
+    store.put(reviews, self.restaurant.id);
+  });
+
+  fillReviewsHTML(reviews)
+}
+
+function requestError(e, id) {
+  console.log(e);
+
+  dbPromise.then(function (db) {
+    if (!db) {
+      return;
+    }
+
+    var index = db.transaction('restaurant_detail_review')
+      .objectStore('restaurant_detail_review');
+
+    index.get(id)
+      .then(function (restaurant_detail) {
+        fillReviewsHTML(restaurant_detail)
+      })
+      .catch(e => console.log(e));
+
+  });
+}
+
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (reviews) => {
+
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
@@ -163,6 +209,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
+
 }
 
 /**
@@ -194,7 +241,7 @@ createReviewHTML = (review) => {
 /**
  * Add restaurant name to the breadcrumb navigation menu
  */
-fillBreadcrumb = (restaurant=self.restaurant) => {
+fillBreadcrumb = (restaurant = self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
@@ -215,4 +262,59 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function newReview() {
+  var reviewRestaurant = {
+    "restaurant_id": this.restaurant.id,
+    "name": document.getElementById('new-review-input-name').value,
+    "rating": document.getElementById('new-review-input-rating').value,
+    "comments": document.getElementById('new-review-input-comment').value
+  };
+
+  preNewReviewSend(reviewRestaurant);
+
+  sendNewReview(`http://localhost:1337/reviews/`, reviewRestaurant)
+    .then(data => postNewReviewSend(JSON.stringify(data)))
+    .catch(error => console.error(error));
+
+  return false;
+}
+
+function sendNewReview(url = ``, data = {}) {
+  // Default options are marked with *
+  return fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    headers: {
+      "Content-Type": "application/json",
+      // "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  })
+    .then(response => response.json()); // parses response to JSON
+}
+
+function preNewReviewSend(reviewData) {
+  //Add Review to DB
+  dbPromise.then(function (db) {
+    if (!db) return;
+
+    var tx = db.transaction('restaurant_detail_review', 'readwrite');
+    var store = tx.objectStore('restaurant_detail_review');
+    store.put(reviewData, reviewData.id);
+  });
+
+  //Add Review To HTML
+  const ul = document.getElementById('reviews-list');
+  ul.appendChild(createReviewHTML(reviewData));
+}
+
+function postNewReviewSend(reviewData) {
+  //Show Snackbar
+  var sBar = document.getElementById("snackbar");
+  sBar.className = "show";
+  setTimeout(function () { sBar.className = sBar.className.replace("show", ""); }, 3000);
+
+  //Reset Form
+  document.getElementById('new-review-form').reset();
 }
