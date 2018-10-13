@@ -56,6 +56,8 @@ self.addEventListener('sync', event => {
   if (event.tag == 'outbox') {
     console.log("Sync Started");
     event.waitUntil(sendOfflineReviews());
+  }else{
+    console.log("Event tag:"+event.tag);
   }
 });
 
