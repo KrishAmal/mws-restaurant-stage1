@@ -286,7 +286,7 @@ function newReview() {
 
 function sendNewReview(url = ``, data = {}) {
   // Default options are marked with *
-  fetch(url, {
+  return fetch(url, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
