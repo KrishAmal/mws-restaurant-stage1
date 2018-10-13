@@ -62,7 +62,7 @@ function sendOfflineReviews() {
   console.log("Sync REgistered")
 
   var dbPromise = openDatabase();
-  dbPromise.then(function (db) {
+  return dbPromise.then(function (db) {
     if (!db) {
       return;
     }
