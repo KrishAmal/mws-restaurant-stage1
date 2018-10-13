@@ -73,7 +73,10 @@ function sendOfflineReviews() {
       .then(function (reviews) {
         reviews.forEach(review => {
           sendNewReview(`http://localhost:1337/reviews/`, review)
-            .then(data => console.log("SENT "+review))
+            .then(data => { 
+              console.log("SENT ");
+              return data;
+            })
             .catch(error => console.error(error));
         });
       })

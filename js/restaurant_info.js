@@ -309,7 +309,11 @@ function handlePostError(data){
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function(registration) {
         console.log('A service worker is active:', registration.active);
-        return registration.sync.register('outbox');
+        registration.sync.register('outbox').then(
+          () => { console.log("Sync Registered"); }
+        );
+      }).catch(function(e) {
+        console.error('Error during service worker ready:', e);
       });
     } else {
       console.log('Service workers are not supported.');
