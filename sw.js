@@ -95,7 +95,7 @@ function sendNewReview(url = ``, data = {}) {
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   }).then(response => response.json())
-  .catch(error); // parses response to JSON
+  .catch(error => error.message); // parses response to JSON
 }
 
 function openDatabase() {
