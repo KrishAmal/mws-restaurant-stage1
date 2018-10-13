@@ -279,7 +279,10 @@ function newReview() {
 
   sendNewReview(`http://localhost:1337/reviews/`, reviewRestaurant)
     .then(data => postNewReviewSend(JSON.stringify(data)))
-    .catch(error => console.error(error));
+    .catch(error => { 
+      console.log("Error:"+error.message);
+      handlePostError(data);
+    });
 
   return false;
 }
@@ -293,11 +296,8 @@ function sendNewReview(url = ``, data = {}) {
       // "Content-Type": "application/x-www-form-urlencoded",
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
-  }).then(response => { console.log(response.json()); })
-  .catch(error => { 
-    console.log("Error:"+error.message);
-    handlePostError(data);
-  }); // parses response to JSON
+  }).then(response => response.json())
+  .catch(error); // parses response to JSON
 }
 
 function handlePostError(data){

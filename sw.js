@@ -74,7 +74,7 @@ function sendOfflineReviews() {
         reviews.forEach(review => {
           sendNewReview(`http://localhost:1337/reviews/`, review)
             .then(data => { 
-              console.log("SENT ");
+              console.log("SENT "+data);
               return data;
             })
             .catch(error => console.error(error));
@@ -95,7 +95,7 @@ function sendNewReview(url = ``, data = {}) {
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   }).then(response => response.json())
-  .catch(handlePostError(data)); // parses response to JSON
+  .catch(error); // parses response to JSON
 }
 
 function openDatabase() {
