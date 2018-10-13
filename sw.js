@@ -56,6 +56,10 @@ var cachedReviewFetch = new Promise(function(resolve, reject) {
   });
 });
 
+var cachedReviewFetch2 = new Promise(function(resolve, reject) {
+    resolve("Success");
+});
+
 function sendOfflineReviews() {
   console.log("Sync REgistered")
 
@@ -128,7 +132,7 @@ self.addEventListener('sync', event => {
   console.log("Event:"+event);
   if (event.tag == 'outbox') {
     console.log("Sync Started");
-    event.waitUntil(cachedReviewFetch);
+    event.waitUntil(cachedReviewFetch2);
   }else{
     console.log("Event tag:"+event.tag);
   }
