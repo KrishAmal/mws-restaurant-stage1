@@ -1,5 +1,4 @@
 importScripts('./js/idb.js');
-importScripts('./js/restaurant_info.js');
 
 const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime';
@@ -80,6 +79,39 @@ function sendOfflineReviews() {
       .catch(e => console.log(e));
   });
 
+}
+
+function sendNewReview(url = ``, data = {}) {
+  // Default options are marked with *
+  return fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    headers: {
+      "Content-Type": "application/json",
+      // "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  }).then(response => response.json())
+  .catch(handlePostError(data)); // parses response to JSON
+}
+
+function openDatabase() {
+  // If the browser doesn't support service worker,
+  // we don't care about having a database
+  if (!navigator.serviceWorker) {
+    return Promise.resolve();
+  }
+
+  return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
+    if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
+      upgradeDb.createObjectStore('restaurant_detail_review', {
+        autoIncrement: false
+      });
+    }
+    upgradeDb.createObjectStore('restaurant_detail', {
+      autoIncrement: true
+    });
+
+  });
 }
 
 //Fetch Service Worker
