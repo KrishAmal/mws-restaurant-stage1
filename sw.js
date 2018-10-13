@@ -50,15 +50,11 @@ self.addEventListener('activate', event => {
   );
 });
 
-var cachedReviewFetch = new Promise(function(resolve, reject) {
-  sendOfflineReviews().then(function(success){
-    resolve("Success");
-  });
-});
-
-var cachedReviewFetch2 = new Promise(function(resolve, reject) {
-    resolve("Success");
-});
+// var cachedReviewFetch = new Promise(function(resolve, reject) {
+//   sendOfflineReviews().then(function(success){
+//     resolve("Success");
+//   });
+// });
 
 function sendOfflineReviews() {
   console.log("Sync REgistered")
@@ -74,14 +70,14 @@ function sendOfflineReviews() {
     var index = db.transaction('outbox')
       .objectStore('outbox');
 
-      console.log(index);
+    console.log(index);
     index.getAll()
       .then(function (reviews) {
         reviews.forEach(review => {
           console.log(review);
           return sendNewReview(`http://localhost:1337/reviews/`, review)
-            .then(data => { 
-              console.log("SENT "+data);
+            .then(data => {
+              console.log("SENT " + data);
               index.delete(data);
               return data;
             })
@@ -104,7 +100,7 @@ function sendNewReview(url = ``, data = {}) {
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   }).then(response => response.json())
-  .catch(error => error.message); // parses response to JSON
+    .catch(error => error.message); // parses response to JSON
 }
 
 function openDatabase() {
@@ -129,12 +125,14 @@ function openDatabase() {
 
 //Sync
 self.addEventListener('sync', event => {
-  console.log("Event:"+event);
+  console.log("Event:" + event);
   if (event.tag == 'outbox') {
     console.log("Sync Started");
-    event.waitUntil(cachedReviewFetch2);
-  }else{
-    console.log("Event tag:"+event.tag);
+    event.waitUntil(new Promise(function (resolve, reject) {
+      resolve("Success");
+    }));
+  } else {
+    console.log("Event tag:" + event.tag);
   }
 });
 
