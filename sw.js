@@ -50,17 +50,6 @@ self.addEventListener('activate', event => {
   );
 });
 
-//Sync
-self.addEventListener('sync', event => {
-  console.log("Event:"+event);
-  if (event.tag == 'outbox') {
-    console.log("Sync Started");
-    event.waitUntil(cachedReviewFetch);
-  }else{
-    console.log("Event tag:"+event.tag);
-  }
-});
-
 var cachedReviewFetch = new Promise(function(resolve, reject) {
   sendOfflineReviews().then(function(success){
     resolve("Success");
@@ -133,6 +122,17 @@ function openDatabase() {
 
   });
 }
+
+//Sync
+self.addEventListener('sync', event => {
+  console.log("Event:"+event);
+  if (event.tag == 'outbox') {
+    console.log("Sync Started");
+    event.waitUntil(cachedReviewFetch);
+  }else{
+    console.log("Event tag:"+event.tag);
+  }
+});
 
 //Fetch Service Worker
 self.addEventListener('fetch', event => {
