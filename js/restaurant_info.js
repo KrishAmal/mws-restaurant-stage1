@@ -2,7 +2,7 @@ let restaurant;
 var newMap;
 var dbPromise;
 
-var IDB_VERSION_RESTAURANT =2;
+var IDB_VERSION_RESTAURANT = 2;
 
 function openDatabase() {
   // If the browser doesn't support service worker,
@@ -13,10 +13,10 @@ function openDatabase() {
 
   return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
     if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
-      upgradeDb.createObjectStore('restaurant_detail_review', {autoIncrement: false});
+      upgradeDb.createObjectStore('restaurant_detail_review', { autoIncrement: false });
     }
-    if(!upgradeDb.objectStoreNames.contains('outbox')){
-      upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
+    if (!upgradeDb.objectStoreNames.contains('outbox')) {
+      upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
     }
     upgradeDb.createObjectStore('restaurant_detail', {
       autoIncrement: true
@@ -279,10 +279,7 @@ function newReview() {
 
   sendNewReview(`http://localhost:1337/reviews/`, reviewRestaurant)
     .then(data => postNewReviewSend(JSON.stringify(data)))
-    .catch(error => { 
-      console.log("Error:"+error.message);
-      handlePostError(data);
-    });
+    .catch(error => console.log(error));
 
   return false;
 }
@@ -297,32 +294,35 @@ function sendNewReview(url = ``, data = {}) {
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   }).then(response => response.json())
-  .catch(error => error.message); // parses response to JSON
+    .catch(error => {
+      handlePostError(data);
+      return error.message
+    }); // parses response to JSON
 }
 
-function handlePostError(data){
+function handlePostError(data) {
   // idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function(upgradeDb) {
   //   upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
-  dbPromise.then(function(db) {
+  dbPromise.then(function (db) {
     var transaction = db.transaction('outbox', 'readwrite');
     return transaction.objectStore('outbox').put(data);
-  }).then(function() {
+  }).then(function () {
     console.log("Registering sync");
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(function(registration) {
+      navigator.serviceWorker.ready.then(function (registration) {
         console.log('A service worker is active:', registration.active);
         registration.sync.register('outbox').then(
           () => { console.log("Sync Registered"); }
         );
-      }).catch(function(e) {
+      }).catch(function (e) {
         console.error('Error during service worker ready:', e);
       });
     } else {
       console.log('Service workers are not supported.');
     }
 
-  });  
+  });
 }
 
 function preNewReviewSend(reviewData) {
@@ -339,7 +339,7 @@ function preNewReviewSend(reviewData) {
         store.put(restaurant_detail, self.restaurant.id);
       })
       .catch(e => console.log(e));
-    
+
   });
 
   //Add Review To HTML
