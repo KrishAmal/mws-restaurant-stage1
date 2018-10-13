@@ -13,9 +13,10 @@ function openDatabase() {
 
   return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
     if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
-      upgradeDb.createObjectStore('restaurant_detail_review', {
-        autoIncrement: false
-      });
+      upgradeDb.createObjectStore('restaurant_detail_review', {autoIncrement: false});
+    }
+    if(!upgradeDb.objectStoreNames.contains('outbox')){
+      upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
     }
     upgradeDb.createObjectStore('restaurant_detail', {
       autoIncrement: true
@@ -297,9 +298,9 @@ function sendNewReview(url = ``, data = {}) {
 }
 
 function handlePostError(data){
-  idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function(upgradeDb) {
-    upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
-  }).then(function(db) {
+  // idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function(upgradeDb) {
+  //   upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
+  dbPromise.then(function(db) {
     var transaction = db.transaction('outbox', 'readwrite');
     return transaction.objectStore('outbox').put(data);
   }).then(function() {
