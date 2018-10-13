@@ -62,6 +62,8 @@ function sendOfflineReviews() {
   console.log("Sync REgistered")
 
   var dbPromise = openDatabase();
+
+  console.log(dbPromise);
   return dbPromise.then(function (db) {
     if (!db) {
       return;
@@ -70,9 +72,11 @@ function sendOfflineReviews() {
     var index = db.transaction('outbox')
       .objectStore('outbox');
 
+      console.log(index);
     index.getAll()
       .then(function (reviews) {
         reviews.forEach(review => {
+          console.log(review);
           return sendNewReview(`http://localhost:1337/reviews/`, review)
             .then(data => { 
               console.log("SENT "+data);
@@ -88,6 +92,7 @@ function sendOfflineReviews() {
 
 function sendNewReview(url = ``, data = {}) {
   // Default options are marked with *
+  console.log("Inside new review");
   return fetch(url, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     headers: {
