@@ -286,14 +286,14 @@ function newReview() {
 
 function sendNewReview(url = ``, data = {}) {
   // Default options are marked with *
-  return fetch(url, {
+  fetch(url, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
       // "Content-Type": "application/x-www-form-urlencoded",
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
-  }).then(response => { response.json(); })
+  }).then(response => { console.log(response.json()); })
   .catch(error => { 
     console.log("Error:"+error.message);
     handlePostError(data);
