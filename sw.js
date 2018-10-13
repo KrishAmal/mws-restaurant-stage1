@@ -38,6 +38,7 @@ self.addEventListener('install', event => {
 //Activate Service Worker
 self.addEventListener('activate', event => {
   const currentCaches = [PRECACHE, RUNTIME];
+  console.log("SW Activate init");
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));

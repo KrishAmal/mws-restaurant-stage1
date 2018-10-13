@@ -23,7 +23,7 @@ function openDatabase() {
 //Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').then(function(reg) {
+    navigator.serviceWorker.register('sw.js',{scope: './'}).then(function(reg) {
 
       reg.onupdatefound = function() {
       var installingWorker = reg.installing;
