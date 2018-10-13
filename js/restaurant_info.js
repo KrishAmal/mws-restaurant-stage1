@@ -293,8 +293,11 @@ function sendNewReview(url = ``, data = {}) {
       // "Content-Type": "application/x-www-form-urlencoded",
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
-  }).then(response => response.json())
-  .catch(handlePostError(data)); // parses response to JSON
+  }).then(response => { response.json(); })
+  .catch(error => { 
+    console.log("Error:"+error.message);
+    handlePostError(data);
+  }); // parses response to JSON
 }
 
 function handlePostError(data){
