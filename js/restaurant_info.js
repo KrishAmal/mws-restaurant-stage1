@@ -304,9 +304,17 @@ function handlePostError(data){
     var transaction = db.transaction('outbox', 'readwrite');
     return transaction.objectStore('outbox').put(data);
   }).then(function() {
-    navigator.serviceWorker.ready.then(function(swRegistration) {
-      return swRegistration.sync.register('outbox');
-    });
+    console.log("Registering sync");
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(function(registration) {
+        console.log('A service worker is active:', registration.active);
+        return registration.sync.register('outbox');
+      });
+    } else {
+      console.log('Service workers are not supported.');
+    }
+
   });  
 }
 
