@@ -1,5 +1,5 @@
-importScripts('/js/idb.js');
-importScripts('/js/restaurant_info.js');
+importScripts('./js/idb.js');
+importScripts('./js/restaurant_info.js');
 
 const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime';
