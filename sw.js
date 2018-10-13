@@ -55,10 +55,16 @@ self.addEventListener('sync', event => {
   console.log("Event:"+event);
   if (event.tag == 'outbox') {
     console.log("Sync Started");
-    event.waitUntil(sendOfflineReviews());
+    event.waitUntil(cachedReviewFetch);
   }else{
     console.log("Event tag:"+event.tag);
   }
+});
+
+var cachedReviewFetch = new Promise(function(resolve, reject) {
+  sendOfflineReviews().then(function(success){
+    resolve("Success");
+  });
 });
 
 function sendOfflineReviews() {
@@ -83,6 +89,7 @@ function sendOfflineReviews() {
           return sendNewReview(`http://localhost:1337/reviews/`, review)
             .then(data => { 
               console.log("SENT "+data);
+              index.delete(data);
               return data;
             })
             .catch(error => console.error(error));
