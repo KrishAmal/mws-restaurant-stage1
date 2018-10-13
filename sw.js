@@ -1,3 +1,5 @@
+importScripts('js/idb.js');
+importScripts('js/restaurant_info.js');
 
 const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime';
@@ -47,6 +49,38 @@ self.addEventListener('activate', event => {
     }).then(() => self.clients.claim())
   );
 });
+
+//Sync
+self.addEventListener('sync', function (event) {
+  if (event.tag == 'outbox') {
+    event.waitUntil(sendOfflineReviews());
+  }
+});
+
+function sendOfflineReviews() {
+  console.log("Sync REgistered")
+
+  var dbPromise = openDatabase();
+  dbPromise.then(function (db) {
+    if (!db) {
+      return;
+    }
+
+    var index = db.transaction('outbox')
+      .objectStore('outbox');
+
+    index.getAll()
+      .then(function (reviews) {
+        reviews.forEach(review => {
+          sendNewReview(`http://localhost:1337/reviews/`, review)
+            .then(data => console.log("SENT "+review))
+            .catch(error => console.error(error));
+        });
+      })
+      .catch(e => console.log(e));
+  });
+
+}
 
 //Fetch Service Worker
 self.addEventListener('fetch', event => {

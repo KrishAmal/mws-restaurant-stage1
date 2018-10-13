@@ -24,6 +24,7 @@ function openDatabase() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('sw.js').then(function(reg) {
+
       reg.onupdatefound = function() {
       var installingWorker = reg.installing;
 
@@ -43,9 +44,11 @@ if ('serviceWorker' in navigator) {
           }
         };
       };
+
     }).catch(function(e) {
       console.error('Error during service worker registration:', e);
     });
+
   });
 }
 

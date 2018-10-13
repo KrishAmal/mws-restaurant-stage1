@@ -2,6 +2,8 @@ let restaurant;
 var newMap;
 var dbPromise;
 
+var IDB_VERSION_RESTAURANT =2;
+
 function openDatabase() {
   // If the browser doesn't support service worker,
   // we don't care about having a database
@@ -9,10 +11,10 @@ function openDatabase() {
     return Promise.resolve();
   }
 
-  return idb.open('restaurant_detail', 2, function (upgradeDb) {
+  return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
     if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
       upgradeDb.createObjectStore('restaurant_detail_review', {
-        autoIncrement: true
+        autoIncrement: false
       });
     }
     upgradeDb.createObjectStore('restaurant_detail', {
@@ -290,8 +292,21 @@ function sendNewReview(url = ``, data = {}) {
       // "Content-Type": "application/x-www-form-urlencoded",
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header
-  })
-    .then(response => response.json()); // parses response to JSON
+  }).then(response => response.json())
+  .catch(handlePostError(data)); // parses response to JSON
+}
+
+function handlePostError(data){
+  idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function(upgradeDb) {
+    upgradeDb.createObjectStore('outbox', { autoIncrement : true, keyPath: 'id' });
+  }).then(function(db) {
+    var transaction = db.transaction('outbox', 'readwrite');
+    return transaction.objectStore('outbox').put(data);
+  }).then(function() {
+    navigator.serviceWorker.ready.then(function(swRegistration) {
+      return swRegistration.sync.register('outbox');
+    });
+  });  
 }
 
 function preNewReviewSend(reviewData) {
@@ -301,7 +316,14 @@ function preNewReviewSend(reviewData) {
 
     var tx = db.transaction('restaurant_detail_review', 'readwrite');
     var store = tx.objectStore('restaurant_detail_review');
-    store.put(reviewData, reviewData.id);
+
+    store.get(self.restaurant.id)
+      .then(function (restaurant_detail) {
+        restaurant_detail.push(reviewData)
+        store.put(restaurant_detail, self.restaurant.id);
+      })
+      .catch(e => console.log(e));
+    
   });
 
   //Add Review To HTML
