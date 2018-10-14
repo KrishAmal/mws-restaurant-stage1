@@ -99,7 +99,6 @@ self.addEventListener('sync', event => {
               //     return data;
               //   })
               //   .catch(error => console.error(error));
-              resolve("Success");
               fetch(`http://localhost:1337/reviews/`, {
                 method: "POST", // *GET, POST, PUT, DELETE, etc.
                 headers: {
@@ -107,12 +106,11 @@ self.addEventListener('sync', event => {
                   // "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: JSON.stringify(review), // body data type must match "Content-Type" header
-              }).then(response => {
+              }).then(function(response){
                 console.log("SENT " + data);
                 index.delete(review.id).then(() => console.log('delete done!'));
                 resolve();
-              })
-                .catch(error => error.message); // parses response to JSON
+              }).catch(error => error.message); // parses response to JSON
             });
           })
           .catch(e => console.log(e));
