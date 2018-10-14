@@ -146,7 +146,7 @@ function toggleFavBtn(){
     toggleFavBtnStyle(favBtn,true);
   }
 
-  fetch(`http://localhost:1337/restaurants/${self.restaurant.id}/?is_favorite=${is_favorite}}`, {
+  fetch(`http://localhost:1337/restaurants/${self.restaurant.id}/?is_favorite=${is_favorite}`, {
       method: "PUT",
     }).then(response => response.json())
       .catch(error => error.message);
