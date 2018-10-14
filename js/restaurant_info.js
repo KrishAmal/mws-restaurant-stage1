@@ -124,12 +124,45 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
 
+  const favBtn = document.getElementById('fav-btn');
+  toggleFavBtnStyle(favBtn, restaurant.is_favorite);
+
   // fill operating hours
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
   // fill reviews
   fetchReviews();
+}
+
+function toggleFavBtn(){
+  var favBtn = document.getElementById('fav-btn');
+  var is_favorite;
+  if(favBtn.innerHTML=="Favorited"){
+    is_favorite = false;
+    toggleFavBtnStyle(favBtn,false);
+  }else{
+    is_favorite = true;
+    toggleFavBtnStyle(favBtn,true);
+  }
+
+  fetch(`http://localhost:1337/restaurants/${self.restaurant.id}/?is_favorite=${is_favorite}}`, {
+      method: "PUT",
+    }).then(response => response.json())
+      .catch(error => error.message);
+
+}
+
+function toggleFavBtnStyle(btn, toggle) {
+  if (toggle == true) {
+    btn.innerHTML = "Favorited";
+    btn.style.color = '#00f';
+    btn.style.borderColor = '#00f';
+  } else {
+    btn.innerHTML = "Add To Favorites";
+    btn.style.color = '#000';
+    btn.style.borderColor = '#000';
+  }
 }
 
 /**
