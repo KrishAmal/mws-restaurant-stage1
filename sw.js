@@ -100,14 +100,18 @@ self.addEventListener('sync', event => {
               //   })
               //   .catch(error => console.error(error));
               resolve("Success");
-              return fetch(`http://localhost:1337/reviews/`, {
+              fetch(`http://localhost:1337/reviews/`, {
                 method: "POST", // *GET, POST, PUT, DELETE, etc.
                 headers: {
                   "Content-Type": "application/json",
                   // "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: JSON.stringify(review), // body data type must match "Content-Type" header
-              }).then(response => response.json())
+              }).then(response => {
+                console.log("SENT " + data);
+                index.delete(data);
+                return response;
+              })
                 .catch(error => error.message); // parses response to JSON
             });
           })
