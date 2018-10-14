@@ -58,6 +58,45 @@ self.addEventListener('activate', event => {
 //   });
 // });
 
+function openDatabase() {
+  // If the browser doesn't support service worker,
+  // we don't care about having a database
+  if (!navigator.serviceWorker) {
+    console.log("SW: Service worker not present");
+    return Promise.resolve();
+  }
+
+  console.log("SW: Opening DB");
+  return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
+    if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
+      upgradeDb.createObjectStore('restaurant_detail_review', {
+        autoIncrement: false
+      });
+    }
+    if (!upgradeDb.objectStoreNames.contains('outbox')) {
+      upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
+    }
+    upgradeDb.createObjectStore('restaurant_detail', {
+      autoIncrement: true
+    });
+
+  });
+}
+
+function sendNewReview(url = ``, data = {}) {
+  // Default options are marked with *
+  console.log("Inside new review");
+  return fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    headers: {
+      "Content-Type": "application/json",
+      // "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  }).then(response => response.json())
+    .catch(error => error.message); // parses response to JSON
+}
+
 function sendOfflineReviews() {
   console.log("Sync REgistered")
 
@@ -90,45 +129,6 @@ function sendOfflineReviews() {
       .catch(e => console.log(e));
   });
 
-}
-
-function sendNewReview(url = ``, data = {}) {
-  // Default options are marked with *
-  console.log("Inside new review");
-  return fetch(url, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      // "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: JSON.stringify(data), // body data type must match "Content-Type" header
-  }).then(response => response.json())
-    .catch(error => error.message); // parses response to JSON
-}
-
-function openDatabase() {
-  // If the browser doesn't support service worker,
-  // we don't care about having a database
-  if (!navigator.serviceWorker) {
-    console.log("SW: Service worker not present");
-    return Promise.resolve();
-  }
-
-  console.log("SW: Opening DB");
-  return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
-    if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
-      upgradeDb.createObjectStore('restaurant_detail_review', {
-        autoIncrement: false
-      });
-    }
-    if (!upgradeDb.objectStoreNames.contains('outbox')) {
-      upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
-    }
-    upgradeDb.createObjectStore('restaurant_detail', {
-      autoIncrement: true
-    });
-
-  });
 }
 
 //Sync
