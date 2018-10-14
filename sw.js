@@ -137,6 +137,7 @@ self.addEventListener('sync', event => {
       sendOfflineReviews().then(function (success) {
         resolve("Success");
       });
+      resolve("Success");
     }));
   } else {
     console.log("Event tag:" + event.tag);
