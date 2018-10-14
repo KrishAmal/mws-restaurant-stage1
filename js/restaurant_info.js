@@ -125,7 +125,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   cuisine.innerHTML = restaurant.cuisine_type;
 
   const favBtn = document.getElementById('fav-btn');
-  toggleFavBtnStyle(favBtn, restaurant.is_favorite);
+  toggleFavBtnStyle(favBtn, self.restaurant.is_favorite);
 
   // fill operating hours
   if (restaurant.operating_hours) {
@@ -139,10 +139,10 @@ function toggleFavBtn(){
   var favBtn = document.getElementById('fav-btn');
   var is_favorite;
   if(favBtn.innerHTML=="Favorited"){
-    is_favorite = false;
+    is_favorite = "false";
     toggleFavBtnStyle(favBtn,false);
   }else{
-    is_favorite = true;
+    is_favorite = "true";
     toggleFavBtnStyle(favBtn,true);
   }
 
@@ -154,7 +154,7 @@ function toggleFavBtn(){
 }
 
 function toggleFavBtnStyle(btn, toggle) {
-  if (toggle == true) {
+  if (toggle == "true") {
     btn.innerHTML = "Favorited";
     btn.style.color = '#00f';
     btn.style.borderColor = '#00f';
