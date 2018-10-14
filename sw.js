@@ -3,8 +3,6 @@ importScripts('./js/idb.js');
 const PRECACHE = 'precache-v4';
 const RUNTIME = 'runtime';
 
-var IDB_VERSION_RESTAURANT = 2;
-
 const PRECACHE_URLS = [
   '/',
   './index.html',
@@ -52,85 +50,6 @@ self.addEventListener('activate', event => {
   );
 });
 
-// var cachedReviewFetch = new Promise(function(resolve, reject) {
-//   sendOfflineReviews().then(function(success){
-//     resolve("Success");
-//   });
-// });
-
-function openDatabaseSw() {
-  // If the browser doesn't support service worker,
-  // we don't care about having a database
-  if (!navigator.serviceWorker) {
-    console.log("SW: Service worker not present");
-    return Promise.resolve();
-  }
-
-  console.log("SW: Opening DB");
-  return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
-    if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
-      upgradeDb.createObjectStore('restaurant_detail_review', {
-        autoIncrement: false
-      });
-    }
-    if (!upgradeDb.objectStoreNames.contains('outbox')) {
-      upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
-    }
-    upgradeDb.createObjectStore('restaurant_detail', {
-      autoIncrement: true
-    });
-
-  });
-}
-
-function sendNewReviewSw(url = ``, data = {}) {
-  // Default options are marked with *
-  console.log("Inside new review");
-  return fetch(url, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      // "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: JSON.stringify(data), // body data type must match "Content-Type" header
-  }).then(response => response.json())
-    .catch(error => error.message); // parses response to JSON
-}
-
-function sendOfflineReviewsSw() {
-  console.log("Sync REgistered")
-
-  var dbPromise = openDatabaseSw();
-  console.log("SW: dbPromise:" + dbPromise);
-
-  return dbPromise.then(function (db) {
-    if (!db) {
-      console.log("Db is Not loaded");
-      return;
-    }
-
-    var index = db.transaction('outbox')
-      .objectStore('outbox');
-
-    console.log(index);
-    index.getAll()
-      .then(function (reviews) {
-        reviews.forEach(review => {
-          console.log(review);
-          return sendNewReviewSw(`http://localhost:1337/reviews/`, review)
-            .then(data => {
-              console.log("SENT " + data);
-              index.delete(data);
-              return data;
-            })
-            .catch(error => console.error(error));
-        });
-      })
-      .catch(e => console.log(e));
-  });
-
-}
-
 //Sync
 self.addEventListener('sync', event => {
   console.log("Event:" + event);
@@ -138,10 +57,33 @@ self.addEventListener('sync', event => {
     console.log("Sync Started");
     event.waitUntil(new Promise(function (resolve, reject) {
 
-      var dbPromise = openDatabaseSw();
+      var dbPromise;
+      var IDB_VERSION_RESTAURANT = 2;
+
+      if (!navigator.serviceWorker) {
+        console.log("SW: Service worker not present");
+        return Promise.resolve();
+      }
+
+      console.log("SW: Opening DB, IDB:" + idb);
+      dbPromise = idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
+        if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
+          upgradeDb.createObjectStore('restaurant_detail_review', {
+            autoIncrement: false
+          });
+        }
+        if (!upgradeDb.objectStoreNames.contains('outbox')) {
+          upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
+        }
+        upgradeDb.createObjectStore('restaurant_detail', {
+          autoIncrement: true
+        });
+
+      });
+
       console.log("SW: dbPromise:" + dbPromise);
 
-      return dbPromise.then(function (db) {
+      dbPromise.then(function (db) {
         if (!db) {
           console.log("Db is Not loaded");
           return;
