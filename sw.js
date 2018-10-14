@@ -110,7 +110,7 @@ self.addEventListener('sync', event => {
               }).then(response => {
                 console.log("SENT " + data);
                 index.delete(data);
-                return response;
+                resolve();
               })
                 .catch(error => error.message); // parses response to JSON
             });
