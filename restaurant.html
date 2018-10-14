@@ -62,21 +62,21 @@
         <p id="new-review-container">
             <h3>Write a review</h3>
             <input required type="text" name="name" class="new-review-input" 
-            id="new-review-input-name" placeholder="Name">
+            id="new-review-input-name" placeholder="Name" aria-label='Enter reviewer name'>
             <input required type="number" name="rating" class="new-review-input" 
-            id="new-review-input-rating" 
+            id="new-review-input-rating" aria-label='Enter review rating (between 1 to 5)'
             placeholder="Rating (1 to 5)" min="1" max="5">
             <input required type="text" name="comment" class="new-review-input" 
-            id="new-review-input-comment" 
+            id="new-review-input-comment" aria-label='Enter review comment'
             placeholder="Comments">
-            <input id="new-review-submit-btn" type="submit" value="Submit">
+            <input id="new-review-submit-btn" type="submit" value="Submit" aria-label='Submit new review'>
             <!-- <button id="new-review-submit-btn" onclick="sendNewReview()" value="Submit">Submit</button> -->
         </p>
       </form>
       <ul id="reviews-list"></ul>
     </section>
     <!-- End reviews -->
-    <div id="snackbar">Added your review</div>
+    <div id="snackbar" role="alert">Added your review</div>
   </main>
   <!-- End main -->
 
