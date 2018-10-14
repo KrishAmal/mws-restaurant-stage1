@@ -136,6 +136,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 }
 
 function toggleFavBtn(){
+  console.log("toggleFavBtn");
   var favBtn = document.getElementById('fav-btn');
   var is_favorite;
   if(favBtn.innerHTML=="Favorited"){
@@ -154,6 +155,7 @@ function toggleFavBtn(){
 }
 
 function toggleFavBtnStyle(btn, toggle) {
+  console.log("toggleFavBtnStyle");
   if (toggle == "true") {
     btn.innerHTML = "Favorited";
     btn.style.color = '#00f';
