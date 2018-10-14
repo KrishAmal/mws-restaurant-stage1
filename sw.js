@@ -101,7 +101,7 @@ function sendOfflineReviewsSw() {
   console.log("Sync REgistered")
 
   var dbPromise = openDatabaseSw();
-  console.log("SW: dbPromise:"+dbPromise);
+  console.log("SW: dbPromise:" + dbPromise);
 
   return dbPromise.then(function (db) {
     if (!db) {
@@ -137,10 +137,45 @@ self.addEventListener('sync', event => {
   if (event.tag == 'outbox') {
     console.log("Sync Started");
     event.waitUntil(new Promise(function (resolve, reject) {
-      sendOfflineReviewsSw().then(function (success) {
-        resolve("Success");
+
+      var dbPromise = openDatabaseSw();
+      console.log("SW: dbPromise:" + dbPromise);
+
+      return dbPromise.then(function (db) {
+        if (!db) {
+          console.log("Db is Not loaded");
+          return;
+        }
+
+        var index = db.transaction('outbox')
+          .objectStore('outbox');
+
+        console.log(index);
+        index.getAll()
+          .then(function (reviews) {
+            reviews.forEach(review => {
+              console.log(review);
+              // return sendNewReviewSw(`http://localhost:1337/reviews/`, review)
+              //   .then(data => {
+              //     console.log("SENT " + data);
+              //     index.delete(data);
+              //     return data;
+              //   })
+              //   .catch(error => console.error(error));
+              resolve("Success");
+              return fetch(`http://localhost:1337/reviews/`, {
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                headers: {
+                  "Content-Type": "application/json",
+                  // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: JSON.stringify(review), // body data type must match "Content-Type" header
+              }).then(response => response.json())
+                .catch(error => error.message); // parses response to JSON
+            });
+          })
+          .catch(e => console.log(e));
       });
-      resolve("Success");
     }));
   } else {
     console.log("Event tag:" + event.tag);
