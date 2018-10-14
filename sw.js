@@ -61,9 +61,9 @@ function sendOfflineReviews() {
 
   var dbPromise = openDatabase();
 
-  console.log(dbPromise);
   return dbPromise.then(function (db) {
     if (!db) {
+      console.log("Db is Not loaded");
       return;
     }
 
@@ -107,14 +107,19 @@ function openDatabase() {
   // If the browser doesn't support service worker,
   // we don't care about having a database
   if (!navigator.serviceWorker) {
+    console.log("SW: Service worker not present");
     return Promise.resolve();
   }
 
+  console.log("SW: Opening DB");
   return idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
     if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
       upgradeDb.createObjectStore('restaurant_detail_review', {
         autoIncrement: false
       });
+    }
+    if (!upgradeDb.objectStoreNames.contains('outbox')) {
+      upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
     }
     upgradeDb.createObjectStore('restaurant_detail', {
       autoIncrement: true
