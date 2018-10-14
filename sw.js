@@ -3,6 +3,8 @@ importScripts('./js/idb.js');
 const PRECACHE = 'precache-v4';
 const RUNTIME = 'runtime';
 
+var IDB_VERSION_RESTAURANT = 2;
+
 const PRECACHE_URLS = [
   '/',
   './index.html',
@@ -60,6 +62,7 @@ function sendOfflineReviews() {
   console.log("Sync REgistered")
 
   var dbPromise = openDatabase();
+  console.log("SW: dbPromise:"+dbPromise);
 
   return dbPromise.then(function (db) {
     if (!db) {
@@ -138,7 +141,7 @@ self.addEventListener('sync', event => {
         resolve("Success");
       });
       resolve("Success");
-    })).then(data => console.log("SW: Data:"+data));
+    }));
   } else {
     console.log("Event tag:" + event.tag);
   }
@@ -146,6 +149,7 @@ self.addEventListener('sync', event => {
 
 //Fetch Service Worker
 self.addEventListener('fetch', event => {
+  console.log("SW: Fetch");
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
 
