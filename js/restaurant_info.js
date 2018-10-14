@@ -158,8 +158,8 @@ function toggleFavBtnStyle(btn, toggle) {
   console.log("toggleFavBtnStyle");
   if (toggle == "true") {
     btn.innerHTML = "Favorited";
-    btn.style.color = '#00f';
-    btn.style.borderColor = '#00f';
+    btn.style.color = '#38f';
+    btn.style.borderColor = '#38f';
   } else {
     btn.innerHTML = "Add To Favorites";
     btn.style.color = '#000';
