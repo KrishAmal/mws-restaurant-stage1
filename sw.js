@@ -58,7 +58,7 @@ self.addEventListener('activate', event => {
 //   });
 // });
 
-function openDatabase() {
+function openDatabaseSw() {
   // If the browser doesn't support service worker,
   // we don't care about having a database
   if (!navigator.serviceWorker) {
@@ -83,7 +83,7 @@ function openDatabase() {
   });
 }
 
-function sendNewReview(url = ``, data = {}) {
+function sendNewReviewSw(url = ``, data = {}) {
   // Default options are marked with *
   console.log("Inside new review");
   return fetch(url, {
@@ -97,10 +97,10 @@ function sendNewReview(url = ``, data = {}) {
     .catch(error => error.message); // parses response to JSON
 }
 
-function sendOfflineReviews() {
+function sendOfflineReviewsSw() {
   console.log("Sync REgistered")
 
-  var dbPromise = openDatabase();
+  var dbPromise = openDatabaseSw();
   console.log("SW: dbPromise:"+dbPromise);
 
   return dbPromise.then(function (db) {
@@ -117,7 +117,7 @@ function sendOfflineReviews() {
       .then(function (reviews) {
         reviews.forEach(review => {
           console.log(review);
-          return sendNewReview(`http://localhost:1337/reviews/`, review)
+          return sendNewReviewSw(`http://localhost:1337/reviews/`, review)
             .then(data => {
               console.log("SENT " + data);
               index.delete(data);
@@ -137,7 +137,7 @@ self.addEventListener('sync', event => {
   if (event.tag == 'outbox') {
     console.log("Sync Started");
     event.waitUntil(new Promise(function (resolve, reject) {
-      sendOfflineReviews().then(function (success) {
+      sendOfflineReviewsSw().then(function (success) {
         resolve("Success");
       });
       resolve("Success");
