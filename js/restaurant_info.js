@@ -141,10 +141,10 @@ function toggleFavBtn(){
   var is_favorite;
   if(favBtn.innerHTML=="Favorited"){
     is_favorite = "false";
-    toggleFavBtnStyle(favBtn,false);
+    toggleFavBtnStyle(favBtn,"false");
   }else{
     is_favorite = "true";
-    toggleFavBtnStyle(favBtn,true);
+    toggleFavBtnStyle(favBtn,"true");
   }
 
   fetch(`http://localhost:1337/restaurants/${self.restaurant.id}/?is_favorite=${is_favorite}`, {
