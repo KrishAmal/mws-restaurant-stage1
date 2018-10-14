@@ -60,11 +60,6 @@ self.addEventListener('sync', event => {
       var dbPromise;
       var IDB_VERSION_RESTAURANT = 2;
 
-      if (!navigator.serviceWorker) {
-        console.log("SW: Service worker not present");
-        return Promise.resolve();
-      }
-
       console.log("SW: Opening DB, IDB:" + idb);
       dbPromise = idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
         if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
