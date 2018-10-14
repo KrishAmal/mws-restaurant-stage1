@@ -138,7 +138,7 @@ self.addEventListener('sync', event => {
         resolve("Success");
       });
       resolve("Success");
-    }));
+    })).then(data => console.log("SW: Data:"+data));
   } else {
     console.log("Event tag:" + event.tag);
   }
