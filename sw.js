@@ -90,8 +90,7 @@ self.addEventListener('sync', event => {
         console.log(index);
         index.getAll()
           .then(function (reviews) {
-            console.log(reviews.target);
-            console.log(reviews.target.result);
+            console.log(reviews);
             reviews.forEach(review => {
               console.log(review);
               fetch(`http://localhost:1337/reviews/`, {
