@@ -90,25 +90,22 @@ self.addEventListener('sync', event => {
         console.log(index);
         index.getAll()
           .then(function (reviews) {
+            console.log(reviews.target);
+            console.log(reviews.target.result);
             reviews.forEach(review => {
               console.log(review);
-              // return sendNewReviewSw(`http://localhost:1337/reviews/`, review)
-              //   .then(data => {
-              //     console.log("SENT " + data);
-              //     index.delete(data);
-              //     return data;
-              //   })
-              //   .catch(error => console.error(error));
               fetch(`http://localhost:1337/reviews/`, {
                 method: "POST", // *GET, POST, PUT, DELETE, etc.
                 headers: {
                   "Content-Type": "application/json",
-                  // "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: JSON.stringify(review), // body data type must match "Content-Type" header
               }).then(function(response){
                 console.log("SENT " + response.json)();
-                index.delete(review).then(() => console.log('delete done!'));
+                index.delete(review)
+                .then(function(response){ console.log('delete done!')})
+                .catch(function(error){console.log("Error deleting:"+error)});
+
                 resolve();
               }).catch(error => error.message); // parses response to JSON
             });
