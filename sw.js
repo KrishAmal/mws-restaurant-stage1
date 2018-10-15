@@ -99,11 +99,14 @@ self.addEventListener('sync', event => {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify(review), // body data type must match "Content-Type" header
-              }).then(function(response){
-                console.log("SENT Id:"+review.id+" "+ response.json());
-                index.delete(review.id)
-                .then(function(response){ console.log('delete done!')})
-                .catch(function(error){console.log("Error deleting:"+error)});
+              }).then(function (response) {
+                console.log("SENT Id:" + review.id + " " + response.json());
+
+                var indexDel = db.transaction('outbox')
+                  .objectStore('outbox');
+                indexDel.delete(review.id)
+                  .then(function (response) { console.log('delete done!') })
+                  .catch(function (error) { console.log("Error deleting:" + error) });
 
                 resolve();
               }).catch(error => error.message); // parses response to JSON
