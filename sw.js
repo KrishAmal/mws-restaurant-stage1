@@ -102,7 +102,7 @@ self.addEventListener('sync', event => {
               }).then(function (response) {
                 console.log("SENT Id:" + review.id + " " + response.json());
 
-                var indexDel = db.transaction('outbox')
+                var indexDel = db.transaction('outbox','readwrite')
                   .objectStore('outbox');
                 indexDel.delete(review.id)
                   .then(function (response) { console.log('delete done!') })
