@@ -100,8 +100,8 @@ self.addEventListener('sync', event => {
                 },
                 body: JSON.stringify(review), // body data type must match "Content-Type" header
               }).then(function(response){
-                console.log("SENT " + response.json)();
-                index.delete(review)
+                console.log("SENT Id:"+review.id+" "+ response.json());
+                index.delete(review.id)
                 .then(function(response){ console.log('delete done!')})
                 .catch(function(error){console.log("Error deleting:"+error)});
 
