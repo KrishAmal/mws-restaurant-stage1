@@ -4,6 +4,51 @@ var dbPromise;
 
 var IDB_VERSION_RESTAURANT = 2;
 
+function updateConnectionStatus(msg, connected) {
+  var sBar = document.getElementById("snackbar");
+  sBar.className = "show";
+  if (connected) {
+    sBar.innerHTML = "Online";
+    // if (el.classList) {
+    //   el.classList.add('connected');
+    //   el.classList.remove('disconnected');
+    // } else {
+    //   el.addClass('connected');
+    //   el.removeClass('disconnected');
+    // }
+  } else {
+    sBar.innerHTML = "Offline";
+    // if (el.classList) {
+    //   el.classList.remove('connected');
+    //   el.classList.add('disconnected');
+    // } else {
+    //   el.removeClass('connected');
+    //   el.addClass('disconnected');
+    // }
+  }
+  setTimeout(function () { sBar.className = sBar.className.replace("show", ""); }, 3000);
+}
+
+window.addEventListener('load', function(e) {
+  if (navigator.onLine) {
+    updateConnectionStatus('Online', true);
+  } else {
+    updateConnectionStatus('Offline', false);
+  }
+}, false);
+
+window.addEventListener('online', function(e) {
+  logger.log("And we're back :)");
+  updateConnectionStatus('Online', true);
+  // Get updates from server.
+}, false);
+
+window.addEventListener('offline', function(e) {
+  logger.log("Connection is flaky.");
+  updateConnectionStatus('Offline', false);
+  // Use offine mode.
+}, false);
+
 function openDatabase() {
   // If the browser doesn't support service worker,
   // we don't care about having a database
