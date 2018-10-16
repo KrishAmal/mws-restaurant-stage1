@@ -38,13 +38,13 @@ window.addEventListener('load', function(e) {
 }, false);
 
 window.addEventListener('online', function(e) {
-  logger.log("And we're back :)");
+  console.log("Online");
   updateConnectionStatus('Online', true);
   // Get updates from server.
 }, false);
 
 window.addEventListener('offline', function(e) {
-  logger.log("Connection is flaky.");
+  console.log("Offline");
   updateConnectionStatus('Offline', false);
   // Use offine mode.
 }, false);
