@@ -4,51 +4,6 @@ var dbPromise;
 
 var IDB_VERSION_RESTAURANT = 2;
 
-function updateConnectionStatus(msg, connected) {
-  var sBar = document.getElementById("snackbar");
-  sBar.className = "show";
-  if (connected) {
-    sBar.innerHTML = "Online";
-    // if (el.classList) {
-    //   el.classList.add('connected');
-    //   el.classList.remove('disconnected');
-    // } else {
-    //   el.addClass('connected');
-    //   el.removeClass('disconnected');
-    // }
-  } else {
-    sBar.innerHTML = "Offline";
-    // if (el.classList) {
-    //   el.classList.remove('connected');
-    //   el.classList.add('disconnected');
-    // } else {
-    //   el.removeClass('connected');
-    //   el.addClass('disconnected');
-    // }
-  }
-  setTimeout(function () { sBar.className = sBar.className.replace("show", ""); }, 3000);
-}
-
-window.addEventListener('load', function(e) {
-  if (navigator.onLine) {
-    updateConnectionStatus('Online', true);
-  } else {
-    updateConnectionStatus('Offline', false);
-  }
-}, false);
-
-window.addEventListener('online', function(e) {
-  console.log("Online");
-  updateConnectionStatus('Online', true);
-  // Get updates from server.
-}, false);
-
-window.addEventListener('offline', function(e) {
-  console.log("Offline");
-  updateConnectionStatus('Offline', false);
-  // Use offine mode.
-}, false);
-
 function openDatabase() {
   // If the browser doesn't support service worker,
   // we don't care about having a database
@@ -69,6 +24,76 @@ function openDatabase() {
 
   });
 }
+
+function queryAndSendOfflineData() {
+
+  dbPromise.then(function (db) {
+    if (!db) {
+      console.log("Db is Not loaded");
+      return;
+    }
+
+    var index = db.transaction('outbox')
+      .objectStore('outbox');
+
+    index.getAll()
+      .then(function (reviews) {
+        console.log(reviews);
+        reviews.forEach(review => {
+          console.log(review);
+          fetch(`http://localhost:1337/reviews/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(review), // body data type must match "Content-Type" header
+          }).then(function (response) {
+            console.log("SENT Id:" + review.id + " " + response.json());
+
+            var indexDel = db.transaction('outbox', 'readwrite')
+              .objectStore('outbox');
+            indexDel.delete(review.id)
+              .then(function (response) { console.log('delete done!') })
+              .catch(function (error) { console.log("Error deleting:" + error) });
+
+            resolve();
+          }).catch(error => error.message); // parses response to JSON
+        });
+      })
+      .catch(e => console.log(e));
+  });
+}
+
+function updateConnectionStatus(msg, connected) {
+  if (connected) {
+    queryAndSendOfflineData();
+  } else {
+    var sBar = document.getElementById("snackbar");
+    sBar.className = "show";
+    sBar.innerHTML = "You Are Offline";
+    setTimeout(function () { sBar.className = sBar.className.replace("show", ""); }, 3000);
+  }
+}
+
+window.addEventListener('load', function (e) {
+  if (navigator.onLine) {
+    updateConnectionStatus('Online', true);
+  } else {
+    updateConnectionStatus('Offline', false);
+  }
+}, false);
+
+window.addEventListener('online', function (e) {
+  console.log("Online");
+  updateConnectionStatus('Online', true);
+  // Get updates from server.
+}, false);
+
+window.addEventListener('offline', function (e) {
+  console.log("Offline");
+  updateConnectionStatus('Offline', false);
+  // Use offine mode.
+}, false);
 
 /**
  * Initialize map as soon as the page is loaded.
@@ -180,22 +205,22 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   fetchReviews();
 }
 
-function toggleFavBtn(){
+function toggleFavBtn() {
   console.log("toggleFavBtn");
   var favBtn = document.getElementById('fav-btn');
   var is_favorite;
-  if(favBtn.innerHTML=="Favorited"){
+  if (favBtn.innerHTML == "Favorited") {
     is_favorite = "false";
-    toggleFavBtnStyle(favBtn,"false");
-  }else{
+    toggleFavBtnStyle(favBtn, "false");
+  } else {
     is_favorite = "true";
-    toggleFavBtnStyle(favBtn,"true");
+    toggleFavBtnStyle(favBtn, "true");
   }
 
   fetch(`http://localhost:1337/restaurants/${self.restaurant.id}/?is_favorite=${is_favorite}`, {
-      method: "PUT",
-    }).then(response => response.json())
-      .catch(error => error.message);
+    method: "PUT",
+  }).then(response => response.json())
+    .catch(error => error.message);
 
 }
 
@@ -386,23 +411,24 @@ function handlePostError(data) {
   dbPromise.then(function (db) {
     var transaction = db.transaction('outbox', 'readwrite');
     return transaction.objectStore('outbox').put(data);
-  }).then(function () {
-    console.log("Registering sync");
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(function (registration) {
-        console.log('A service worker is active:', registration.active);
-        registration.sync.register('outbox').then(
-          () => { console.log("Sync Registered"); }
-        );
-      }).catch(function (e) {
-        console.error('Error during service worker ready:', e);
-      });
-    } else {
-      console.log('Service workers are not supported.');
-    }
-
   });
+  // .then(function () {
+  //   console.log("Registering sync");
+
+  //   if ('serviceWorker' in navigator) {
+  //     navigator.serviceWorker.ready.then(function (registration) {
+  //       console.log('A service worker is active:', registration.active);
+  //       registration.sync.register('outbox').then(
+  //         () => { console.log("Sync Registered"); }
+  //       );
+  //     }).catch(function (e) {
+  //       console.error('Error during service worker ready:', e);
+  //     });
+  //   } else {
+  //     console.log('Service workers are not supported.');
+  //   }
+
+  // });
 }
 
 function preNewReviewSend(reviewData) {
