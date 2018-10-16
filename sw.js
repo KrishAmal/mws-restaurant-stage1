@@ -1,5 +1,3 @@
-importScripts('./js/idb.js');
-
 const PRECACHE = 'precache-v4';
 const RUNTIME = 'runtime';
 
@@ -48,76 +46,6 @@ self.addEventListener('activate', event => {
       }));
     }).then(() => self.clients.claim())
   );
-});
-
-//Sync
-self.addEventListener('sync', event => {
-  console.log("Event:" + event);
-  if (event.tag == 'outbox') {
-    console.log("Sync Started");
-    event.waitUntil(new Promise(function (resolve, reject) {
-
-      var dbPromise;
-      var IDB_VERSION_RESTAURANT = 2;
-
-      console.log("SW: Opening DB, IDB:" + idb);
-      dbPromise = idb.open('restaurant_detail', IDB_VERSION_RESTAURANT, function (upgradeDb) {
-        if (!upgradeDb.objectStoreNames.contains('restaurant_detail_review')) {
-          upgradeDb.createObjectStore('restaurant_detail_review', {
-            autoIncrement: false
-          });
-        }
-        if (!upgradeDb.objectStoreNames.contains('outbox')) {
-          upgradeDb.createObjectStore('outbox', { autoIncrement: true, keyPath: 'id' });
-        }
-        upgradeDb.createObjectStore('restaurant_detail', {
-          autoIncrement: true
-        });
-
-      });
-
-      console.log("SW: dbPromise:" + dbPromise);
-
-      dbPromise.then(function (db) {
-        if (!db) {
-          console.log("Db is Not loaded");
-          return;
-        }
-
-        var index = db.transaction('outbox')
-          .objectStore('outbox');
-
-        console.log(index);
-        index.getAll()
-          .then(function (reviews) {
-            console.log(reviews);
-            reviews.forEach(review => {
-              console.log(review);
-              fetch(`http://localhost:1337/reviews/`, {
-                method: "POST", // *GET, POST, PUT, DELETE, etc.
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(review), // body data type must match "Content-Type" header
-              }).then(function (response) {
-                console.log("SENT Id:" + review.id + " " + response.json());
-
-                var indexDel = db.transaction('outbox','readwrite')
-                  .objectStore('outbox');
-                indexDel.delete(review.id)
-                  .then(function (response) { console.log('delete done!') })
-                  .catch(function (error) { console.log("Error deleting:" + error) });
-
-                resolve();
-              }).catch(error => error.message); // parses response to JSON
-            });
-          })
-          .catch(e => console.log(e));
-      });
-    }));
-  } else {
-    console.log("Event tag:" + event.tag);
-  }
 });
 
 //Fetch Service Worker
