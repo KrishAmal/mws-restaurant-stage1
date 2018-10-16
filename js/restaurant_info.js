@@ -457,6 +457,7 @@ function postNewReviewSend(reviewData) {
   //Show Snackbar
   var sBar = document.getElementById("snackbar");
   sBar.className = "show";
+  sBar.innerHTML = "Added your review";
   setTimeout(function () { sBar.className = sBar.className.replace("show", ""); }, 3000);
 
   //Reset Form
